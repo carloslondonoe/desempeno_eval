@@ -1,0 +1,233 @@
+@extends('crudbooster::admin_template')
+@section('content')
+@php
+    use App\Evaluacion;
+@endphp
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
+<link rel="stylesheet" href="{{ URL::asset('css/main.css') }}">
+
+<div class="card box-body table-responsive no-padding">
+
+    <h2>Registro de evaluaciones</h2>
+    
+    <table class="table table-hover table-striped table-bordered">
+        <thead>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>Cargo</th>
+            <th>Evaluacion</th>
+            <th colspan="2"></th>
+        </thead>
+        <tbody>
+            @foreach ($users as $user)
+            <tr>
+                @if (sizeof($user->autoevaluaciones) > 0)
+    
+                            <td> {{$user->apellido}} </td>
+                            <td>{{$user->name}}</td>
+                            <td> {{$user->cargo->cargo}} </td>
+                            <td>{{ $user->autoevaluaciones->last()->evaluacion->titulo}} </td>
+                                    
+                            <?php
+                            
+                                $date_start = new \DateTime($user->autoevaluaciones->last()->created_at);
+                                $hoy = new \DateTime();
+                                $annos = $hoy->diff($date_start);
+    
+    
+                                if($user->autoevaluaciones->last()->evaluacion->formato == 'd'){
+                                    if($annos->d < $user->autoevaluaciones->last()->evaluacion->duracion){
+                            ?>            
+    
+    
+                                    @if (!empty($user->autoevaluaciones->last()) && !empty($user->autoevaluacioncoordinador->last()) && !empty($user->valoraciones->last()) )
+                                        <td >
+                                            <a href="{{ route('plan_trabajo', $user->valoraciones->last()) }}" class="btn btn-primary">Plan de trabajo</a>
+                                        </td>
+                                        <td >
+                                            <a class="btn btn-primary" href="{{ URL::to('/reporte_final/'.$user->autoevaluaciones->last()->id.'/'.$user->autoevaluacioncoordinador->last()->id.'/'.$user->valoraciones->last()->id) }}"> Reporte General </a>
+                                        </td>
+                                    @else
+                                        
+                                        @if (!empty($user->autoevaluaciones->last()) && !empty($user->autoevaluacioncoordinador->last()) )
+                                            <td> 
+                                                <span class="label label-primary">Evaluado por el empleado</span>
+                                            </td>
+                                            @if (!empty($user->autoevaluacioncoordinador->last()))
+                                                <td> 
+                                                    <a href="{{ route('valorar_evaluacion', $user->autoevaluaciones->last()) }}" class="btn btn-warning">valoración final</a>
+                                                </td>
+                                            @else 
+                                                <td> 
+                                                    <a href="{{ route('calificar_autoevaluacion', $user ) }}" class="btn btn-warning">Evaluar</a>
+                                                </td>
+                                            @endif
+                                        @elseif(!empty($user->autoevaluacioncoordinador->last()) && empty($user->autoevaluaciones->last())  )
+                                            <td> 
+                                                <span class="label label-primary">Evaluado por el empleado</span>
+                                            </td>
+                                            <td> 
+                                                <a href="{{ route('calificar_autoevaluacion', $user) }}" class="btn btn-warning">Autoevaluación realizada</a>
+                                            </td>
+                                        @else
+                                        
+                                            <td> 
+                                                <span class="label label-primary">Evaluado por el empleado</span>
+                                            </td>
+                                            <td> 
+                                                <a href="{{ route('calificar_autoevaluacion', $user) }}" class="btn btn-warning">Calificar</a>
+                                            </td>
+                                        @endif
+                    
+                                        
+                                    @endif
+                            <?php
+                                    }
+                                }
+                            
+                                if($user->autoevaluaciones->last()->evaluacion->formato == 'm'){
+                                    if($annos->m < $user->autoevaluaciones->last()->evaluacion->duracion){
+                            ?>
+                                    @if (!empty($user->autoevaluaciones->last()) && !empty($user->autoevaluacioncoordinador->last()) && !empty($user->valoraciones->last()) )
+                                        
+                                        <td colspan="2">
+                                            <a href="{{ route('plan_trabajo', $user->valoraciones->last()) }}" class="btn btn-primary">Plan de trabajo</a>
+                                        </td>
+                                    @else
+                                    
+                                        @if (!empty($user->autoevaluaciones->last()) && !empty($user->autoevaluacioncoordinador->last()) )
+                                            <td> 
+                                                <a href="{{ route('show_autoevaluacion', $user->autoevaluaciones->last()) }}" class="btn btn-warning">Ver reporte</a>
+                                            </td>
+                                            @if (!empty($user->autoevaluacioncoordinador->last()))
+                                                <td> 
+                                                    <a href="{{ route('valorar_evaluacion', $user->autoevaluaciones->last()) }}" class="btn btn-warning">valoración final</a>
+                                                </td>
+                                            @else 
+                                                <td> 
+                                                    <a href="{{ route('calificar_autoevaluacion', $user ) }}" class="btn btn-warning">Evaluar</a>
+                                                </td>
+                                            @endif
+                                        @else
+                                            <td> 
+                                                <a href="{{ route('show_autoevaluacion', $user->autoevaluaciones->last()) }}" class="btn btn-warning">Ver Autoevaluación</a>
+                                            </td>
+                                            <td> 
+                                                <a href="{{ route('calificar_autoevaluacion', $user) }}" class="btn btn-warning">Calificar</a>
+                                            </td>
+                                        @endif
+                    
+                                        
+                                    @endif
+                            <?php   
+                                    }
+                                }
+    
+                                if($user->autoevaluaciones->last()->evaluacion->formato == 'y'){
+                                    if($annos->y < $user->autoevaluaciones->last()->evaluacion->duracion){
+                            ?>  
+                                    @if (!empty($user->autoevaluaciones->last()) && !empty($user->autoevaluacioncoordinador->last()) && !empty($user->valoraciones->last()) )
+                                       
+                                    <td colspan="2">
+                                            <a href="{{ route('plan_trabajo', $user->valoraciones->last()) }}" class="btn btn-primary">Plan de trabajo</a>
+                                        </td>
+                                    @else
+                                    
+                                        @if (!empty($user->autoevaluaciones->last()) && !empty($user->autoevaluacioncoordinador->last()) )
+                                            <td> 
+                                                <a href="{{ route('show_autoevaluacion', $user->autoevaluaciones->last()) }}" class="btn btn-warning">Ver reporte</a>
+                                            </td>
+                                            @if (!empty($user->autoevaluacioncoordinador->last()))
+                                                <td> 
+                                                    <a href="{{ route('valorar_evaluacion', $user->autoevaluaciones->last()) }}" class="btn btn-warning">valoración final</a>
+                                                </td>
+                                            @else 
+                                                <td> 
+                                                    <a href="{{ route('calificar_autoevaluacion', $user ) }}" class="btn btn-warning">Evaluar</a>
+                                                </td>
+                                            @endif
+                                        @else
+                                            <td> 
+                                                <a href="{{ route('show_autoevaluacion', $user->autoevaluaciones->last()) }}" class="btn btn-warning">Ver Autoevaluación</a>
+                                            </td>
+                                            <td> 
+                                                <a href="{{ route('calificar_autoevaluacion', $user) }}" class="btn btn-warning">Calificar</a>
+                                            </td>
+                                        @endif
+                    
+                                        
+                                    @endif   
+                            
+                            <?php
+                                    }
+                                }
+                                /* */
+                            ?> 
+               
+            
+                @else
+                        @php
+                            $evaluaciones = Evaluacion::where('idcargo','=', $user->cargoid)->get();
+                        @endphp
+                        @if (sizeof($evaluaciones) > 0)
+                            @foreach ($evaluaciones as $evaluacion)
+                                <td> {{$user->apellido}} </td>
+                                <td>{{$user->name}}</td>
+                                <td> {{$user->cargo->cargo}} </td>
+                                <td>{{ $evaluacion->titulo}} </td>
+                                <td> 
+                                    <span class="label label-warning">Pendiente por autoevaluación</span>
+                                </td>
+                                @if ( !empty($user->autoevaluacioncoordinador->last()) )
+                                    <td>
+                                        <span class="label label-primary">Evaluado</span>
+                                    </td>
+                                @else
+                                    <td>
+                                        <a href="{{ route('calificar_autoevaluacion',$user ) }}" class="btn btn-warning">Calificar</a>
+                                    </td>
+                                @endif
+                            @endforeach
+                        @else
+                            @if (sizeof($evaluacion_general) >  0)
+                                @foreach ($evaluacion_general as $evaluacion)
+                                    <td> {{$user->apellido}} </td>
+                                    <td>{{$user->name}}</td>
+                                    <td> {{$user->cargo->cargo}} </td>
+                                    <td>{{ $evaluacion->titulo}} </td>
+                                    <td> 
+                                        <span class="label label-warning">Pendiente por autoevaluación</span>
+                                    </td>
+                                      
+                                    @if ( !empty($user->autoevaluacioncoordinador->last()) )
+                                        <td>
+                                            <span class="label label-primary">Evaluado</span>
+                                        </td>
+                                    @else
+                                        <td>
+                                            <a href="{{ route('calificar_autoevaluacion',$user ) }}" class="btn btn-warning">Calificar</a>
+                                        </td>
+                                    @endif
+    
+                                    
+                                @endforeach
+                            @else
+                                    <td> {{$user->apellido}} </td>
+                                    <td>{{$user->name}}</td>
+                                    <td> Auto evaluación sin realizar </td>
+                                    <td>
+                                        <a href="{{ route('calificar_autoevaluacion',$user ) }}" class="btn btn-warning">Calificar</a>
+                                    </td>
+                             @endif
+                        @endif
+                @endif
+            </tr>
+    
+            @endforeach
+        </tbody>
+    </table>
+</div>
+
+
+@endsection

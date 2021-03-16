@@ -1,0 +1,25 @@
+{
+    "name": "jfvil/my-great-api",
+    "description": "api rest full",
+    "type": "project",
+    "require": {
+        "illuminate/database": "5.4",
+        "illuminate/container": "5.4",
+        "illuminate/contracts": "5.4",
+        "illuminate/support": "5.4",
+        "phpmailer/phpmailer": "^6.0",
+        "vlucas/phpdotenv": "^3.5@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "juanfer",
+            "email": "jfvilladiego3@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}

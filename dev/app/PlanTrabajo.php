@@ -1,0 +1,21 @@
+<?php
+
+namespace App;
+
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
+
+class PlanTrabajo extends Model
+{
+    protected $table = 'plan_de_trabajo';
+
+    public function seguimientos(){
+        return $this->hasMany(Seguimiento::class, 'plan_id','id');
+    }
+
+    public function valoracion(){
+        return $this->belongsTo(Valoracion::class, 'valoracion_id','id');
+    }
+
+
+}
