@@ -1,9 +1,27 @@
 @extends('crudbooster::admin_template')
 @section('content')
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css" />
 
+<link rel="stylesheet" href="{{ URL::asset('css/main.css') }}">
 <html lang="en" >
 <head>
   <style>
+    ul.sortable-list li:after {
+    position: absolute;
+    line-height: 22px;
+    font-size: 18px;
+    text-align: right;
+    padding-right: 8px;
+    content:"×";
+    width: 20px;
+    height: 100%;
+    right: 0;
+    color: #999;
+}
   .card {
   border: 0 solid #edf2f9;
   border-radius: 0.375rem;
@@ -118,7 +136,14 @@
         <div class="alert alert-warning small">
           <center>No Fields Selected</center>
         </div>
-        <ul name="in_primary_fields" class="sortable-list primaryDropzone fixed-panel"></ul>
+        <ul name="in_primary_fields" id="in_primary_fields"  class="sortable-list primaryDropzone fixed-panel">
+        @foreach($evaluadores as $eva)
+        @if ($eva->evaluacion_t == 1)
+        <li class="in_primary_fields sortable-item allowPrimary allowSecondary allowExport ui-sortable-handle" name="eval" data-fid='{{$eva->id}}'  style="position: relative; left: 0px; top: 0px;"> {{$eva->cargo}}</li>
+        @endif
+        @empty
+        @endforelse
+        </ul>
       </div>
     </div>
     <br />
@@ -129,7 +154,14 @@
         <div class="alert alert-warning small">
           <center>No Fields Selected</center>
         </div>
-        <ul name="in_secondary_fields" class="sortable-list secondaryDropzone fixed-panel" data-fieldtype="secondary"></ul>
+        <ul name="in_secondary_fields" id="in_secondary_fields"  class="sortable-list secondaryDropzone fixed-panel">
+        @foreach($evaluadores as $eva)
+        @if ($eva->evaluacion_t == 2)
+        <li class="in_secondary_fields sortable-item allowPrimary allowSecondary allowExport ui-sortable-handle" name="eval" data-fid='{{$eva->id}}'  style="position: relative; left: 0px; top: 0px;"> {{$eva->cargo}}</li>
+        @endif
+        @empty
+        @endforelse
+        </ul>
       </div>
     </div>
     <br />
@@ -139,31 +171,113 @@
         <div class="alert alert-warning small">
           <center>No Fields Selected</center>
         </div>
-        <ul name="in_export_fields" class="sortable-list exportDropzone fixed-panel"></ul>
+        <ul name="in_export_fields" id="in_export_fields"  class="sortable-list exportDropzone fixed-panel">
+        @foreach($evaluadores as $eva)
+        @if ($eva->evaluacion_t == 3)
+        <li class="in_export_fields sortable-item allowPrimary allowSecondary allowExport ui-sortable-handle" name="eval" data-fid='{{$eva->id}}'  style="position: relative; left: 0px; top: 0px;"> {{$eva->cargo}}</li>
+        @endif
+        @empty
+        @endforelse
+        </ul>
+
       </div>
     </div>
     <div class="col-md-12" style="text-align: center">
-        <button type="submit" class="btn btn-success">
+        <button type="button" id="guardar" class="btn btn-success">
             <span class="glyphicon glyphicon-cloud-download"></span>
             Confirmar Evaluadores
         </button>
     </div>
       </form>
-
+  <div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            
+        </div>
+        <div class="modal-body">
+            <div id="msg_save"class="alert alert-success">
+                Evaluadores Registrados de manera exitosa
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" onClick="window.location.reload();" class="btn btn-info" data-dismiss="modal">Cerrar</button>
+        </div>
+        </div>
+    </div>
+</div>
   </div>
 </div>
-
-
 <!-- partial -->
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-sortable/0.9.13/jquery-sortable.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script><script  src="./script.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
+<script src="{{ asset ('js/script.js')}}"></script>
+ 
+  
 
 <script>
 // On ready
 $(document).ready(function() {
+  $(".sortable-list li").click(function(e) {
+    if ($(this).outerWidth() - 34 <= e.offsetX)
+        $(this).remove();
+        if ( $('.in_primary_fields').length == 0 ) {
+  $('.primaryPanel').find('.alert').show();
 
+}
+
+if ( $('.in_secondary_fields').length == 0  ) {
+  $('.secondaryPanel').find('.alert').show();
+}
+
+if ( $('.in_export_fields').length == 0  ) {
+  $('.exportPanel').find('.alert').show();
+}
+});
+
+
+
+if ( $('.in_primary_fields').length > 0 ) {
+  $('.primaryPanel').find('.alert').hide();
+
+}
+
+if ( $('.in_secondary_fields').length >0 ) {
+  $('.secondaryPanel').find('.alert').hide();
+}
+
+if ( $('.in_export_fields').length > 0 ) {
+  $('.exportPanel').find('.alert').hide();
+}
+  $('#guardar').click(function() {
+    var items = $("#in_primary_fields").sortable('toArray', {
+    attribute: 'data-fid'
+    });
+    var items2 = $("#in_secondary_fields").sortable('toArray', {
+    attribute: 'data-fid'
+    });
+    var items3 = $("#in_export_fields").sortable('toArray', {
+    attribute: 'data-fid'
+    });
+    console.log(items3)
+                $.ajax({
+                    type:'POST',
+                    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+                    url:'guardarEvaluadores',
+                    data:{items:items, items2:items2, items3:items3 },
+                      success:function(data){ 
+                         if (data.status=="ok") {
+                          $('#myModal').modal('show')
+                         }
+                      }
+                  });
+
+
+  })
   // Set up our dropzone
   $('#in_available_fields').sortable({
     connectWith: '.sortable-list',
@@ -190,6 +304,7 @@ $(document).ready(function() {
       if (!$(ui.item).hasClass("allowExport")) {
         $(".exportPanel").removeClass("panel-danger").addClass('panel-primary');
       }
+  
     },
     change: function(event, ui) {
       checkFields();

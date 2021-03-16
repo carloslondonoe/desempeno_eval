@@ -188,3 +188,5 @@ Route::post('misevaluaciones','AdminEvalTodos@guardar')->name('guardarmiseval360
 Route::post('evaluacion360','AdminEvalTodos@realizar')->name('realizar360');
 Route::get('evaluacion360','AdminEvalTodos@realizar')->name('realizar360');
 Route::post('salvar360', 'AdminEvalTodos@salvar')->name('360salvar');
+Route::post('guardarEvaluadores', 'AdminEvalTodos@guardarEvaluadores');
+

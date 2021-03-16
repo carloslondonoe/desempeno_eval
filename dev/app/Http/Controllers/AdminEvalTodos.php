@@ -83,24 +83,81 @@ return view('eval_360/evaluacion360', compact("eval","eval360", "preguntas"));
    {
 //echo $name    = $_POST["name"];
 $miuser = CRUDBooster::myId();
+//$miuser = 79;
+
 //$cargos = DB::select("SELECT id as 'idc', nombre as 'nombre' FROM evaluaciones_360");
        $cargos = EvaluacionesTodos::all();
        //$cargos_select = Cargo::all();
-  $cargos_select = DB::select("SELECT us.id as 'id',
+  $evaluadores = DB::select("SELECT us.id as 'id', et.evaluacion_t, 
 CONCAT(us.name,' ',us.apellido,' ','Cargo: ',cc.cargo) as 'cargo'
 
  FROM
 cms_users as us
 JOIN cargo as cc ON us.cargoid = cc.id
+JOIN evaluacion_todos as et ON us.id = et.colaborador_id
 WHERE
 us.status = 'Activo'
-AND us.id <> '$miuser' ");
+AND et.evaluador = '$miuser'");
+
+  $cargos_select = DB::select("SELECT us.id as 'id',
+  CONCAT(us.name,' ',us.apellido,' ','Cargo: ',cc.cargo) as 'cargo'
+   FROM
+  cms_users as us
+  JOIN cargo as cc ON us.cargoid = cc.id
+  WHERE
+  us.status = 'Activo'
+  AND us.id <> '$miuser' ");
+//die(var_dump( $evaluadores));
 
 
-
-       return view('eval_360/eval_todos', compact("tipoeval","cargos", "orden_cargos", "cargos_select"));
+    return view('eval_360/eval_todos', compact("tipoeval","cargos", "orden_cargos", "cargos_select", "evaluadores"));
    }
+   public function guardarEvaluadores(Request $request)
+   {
+    $miuser = CRUDBooster::myId();
+     //$miuser = 79;
+     
+       $items=  $request->items;
+       $items2=  $request->items2;
+       $items3=  $request->items3;
 
+       Evaltodos::where('evaluador', $miuser)->delete();
+       // die(var_dump(intval($items3)));
+
+   if(!empty($items)){
+        foreach ($items as $key => $new_cargo) {
+            //die(var_dump(intval($new_cargo)));
+            $orden_cargo = new Evaltodos();
+            $orden_cargo->colaborador_id = intval($new_cargo) ;
+            $orden_cargo->evaluador = $miuser;
+            $orden_cargo->evaluacion_t = 1;
+            $orden_cargo->save();
+        }
+    }
+  
+    if(!empty($items2)){
+        foreach ($items2 as $key => $new_cargo) {
+            $orden_cargo = new Evaltodos();
+            $orden_cargo->colaborador_id = intval($new_cargo) ;
+            $orden_cargo->evaluador = $miuser;
+            $orden_cargo->evaluacion_t = 2;
+            $orden_cargo->save();
+        }
+    }
+    if(!empty($items3)){
+        foreach ($items3 as $key => $new_cargo) {
+            $orden_cargo = new Evaltodos();
+            $orden_cargo->colaborador_id = intval($new_cargo) ;
+            $orden_cargo->evaluador = $miuser;
+            $orden_cargo->evaluacion_t = 3;
+            $orden_cargo->save();
+        }
+    }
+
+     
+    return array('status' => 'ok');
+     
+   }
    public function show($id)
    {
        return view('eval_360/create');
